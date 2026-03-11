@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Une Question Importante 💌</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #ff6b9d;
+    --yellow: #ffd93d;
+    --purple: #c77dff;
+    --mint: #6bcb77;
+    --bg: #fff0f6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Floating emojis background */
+  .floaters {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .floater {
+    position: absolute;
+    font-size: 2rem;
+    animation: floatUp linear infinite;
+    opacity: 0.6;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* Card */
+  .card {
+    position: relative;
+    z-index: 10;
+    background: white;
+    border-radius: 32px;
+    padding: 48px 44px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(255,107,157,0.25), 0 0 0 4px var(--pink);
+    text-align: center;
+    animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    to { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .emoji-big {
+    font-size: 5rem;
+    display: block;
+    animation: wiggle 1.5s ease-in-out infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes wiggle {
+    0%,100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+
+  h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 2rem;
+    color: var(--pink);
+    margin-bottom: 12px;
+    text-shadow: 3px 3px 0 #ffd93d;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: #888;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* Screens */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.05rem;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+    margin: 8px;
+  }
+  .btn:active { transform: scale(0.95); }
+
+  .btn-yes {
+    background: var(--pink);
+    color: white;
+    box-shadow: 0 6px 0 #c4496f;
+  }
+  .btn-yes:hover { transform: scale(1.08); box-shadow: 0 8px 0 #c4496f; }
+
+  .btn-no {
+    background: var(--yellow);
+    color: #333;
+    box-shadow: 0 6px 0 #c9a900;
+    position: relative;
+  }
+
+  .btn-maybe {
+    background: var(--purple);
+    color: white;
+    box-shadow: 0 6px 0 #8e44c9;
+  }
+  .btn-maybe:hover { transform: scale(1.05); }
+
+  .btn-big {
+    font-size: 1.3rem;
+    padding: 18px 40px;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: #f0f0f0;
+    border-radius: 20px;
+    height: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pink), var(--purple));
+    border-radius: 20px;
+    transition: width 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  /* Quiz question style */
+  .question-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  .options-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .opt-btn {
+    background: #fff5fa;
+    border: 2.5px solid #ffc1d9;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .opt-btn:hover {
+    background: var(--pink);
+    color: white;
+    border-color: var(--pink);
+    transform: translateX(6px);
+  }
+
+  /* Reaction bubble */
+  .reaction {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--pink);
+    min-height: 28px;
+    margin: 12px 0;
+    animation: fadeIn 0.3s;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: translateY(0); } }
+
+  /* No button runaway */
+  #btn-no-runaway {
+    position: fixed;
+    transition: top 0.1s, left 0.1s;
+    z-index: 999;
+  }
+
+  /* Final screen confetti-ish */
+  .confetti-line {
+    font-size: 2rem;
+    letter-spacing: 6px;
+    margin: 12px 0;
+    animation: bounce 0.8s ease-in-out infinite alternate;
+  }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+  .tag {
+    display: inline-block;
+    background: var(--yellow);
+    color: #333;
+    border-radius: 50px;
+    padding: 4px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin: 4px;
+  }
+
+  /* Heart rain on success */
+  .heart {
+    position: fixed;
+    font-size: 1.8rem;
+    animation: fallDown linear forwards;
+    pointer-events: none;
+    z-index: 999;
+  }
+  @keyframes fallDown {
+    0% { transform: translateY(-60px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  .score-display {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--pink);
+    margin: 8px 0;
+  }
+  .score-label {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="floaters" id="floaters"></div>
+
+<div class="card" id="card">
+
+  <!-- SCREEN 0: Intro -->
+  <div class="screen active" id="screen-0">
+    <span class="emoji-big">💌</span>
+    <h1>Psssst... Toi !</h1>
+    <p class="subtitle">Oui toi, la plus belle 😏<br>J'ai une question <em>très très importante</em> à te poser...</p>
+    <button class="btn btn-yes btn-big" onclick="goTo(1)">Je suis prête 👀</button>
+    <button class="btn btn-maybe" id="btn-pas-encore" onclick="pasencore()">Pas encore...</button>
+    <div class="reaction" id="react-0"></div>
+  </div>
+
+  <!-- SCREEN 1: Quiz -->
+  <div class="screen" id="screen-1">
+    <div class="progress-wrap"><div class="progress-bar" id="progress" style="width:0%"></div></div>
+    <span class="emoji-big" id="q-emoji">🤔</span>
+    <div class="question-text" id="q-text">...</div>
+    <div class="options-grid" id="q-options"></div>
+    <div class="reaction" id="react-quiz"></div>
+  </div>
+
+  <!-- SCREEN 2: THE Question -->
+  <div class="screen" id="screen-2">
+    <span class="emoji-big">🥺</span>
+    <h1>La vraie question...</h1>
+    <p class="subtitle">Après tout ce qu'on vient de découvrir ensemble,<br>j'ai besoin que tu répondes à <strong>ÇA</strong> :</p>
+    <p class="question-text" style="font-size:1.5rem; color:var(--pink); margin-bottom:30px;">
+      Est-ce que tu veux bien sortir avec moi ? 🌹
+    </p>
+    <div>
+      <button class="btn btn-yes btn-big" onclick="sayYes()">OUI !! 🥰</button>
+      <button class="btn btn-no btn-big" id="btn-no-runaway" onmouseover="runAway()" onclick="runAway()">Non 🙅‍♀️</button>
+    </div>
+    <div class="reaction" id="react-final"></div>
+  </div>
+
+  <!-- SCREEN 3: SUCCESS -->
+  <div class="screen" id="screen-3">
+    <div class="confetti-line">🎉🎊✨🎉🎊</div>
+    <h1>YESSS !!!</h1>
+    <p class="subtitle" style="font-size:1.2rem;">Tu as dit <strong>OUI</strong> ! 🥹<br>Tu viens de rendre quelqu'un très très heureux !</p>
+    <div class="score-display">100%</div>
+    <div class="score-label">de bonheur garanti</div>
+    <p style="color:#888; font-size:0.9rem; margin-bottom:16px;">Notre date inclura :</p>
+    <div>
+      <span class="tag">🍕 Pizza</span>
+      <span class="tag">🎬 Film</span>
+      <span class="tag">😂 Fous rires</span>
+      <span class="tag">✨ Magie</span>
+      <span class="tag">💖 Bonne vibes</span>
+    </div>
+    <br>
+    <button class="btn btn-yes btn-big" onclick="celebrate()">🎊 CÉLÉBRER !</button>
+  </div>
+
+</div>
+
+<script>
+  // Floating background emojis
+  const emojis = ['💖','🌸','⭐','🌟','✨','💫','🦋','🌷','💐','🍓'];
+  const floaters = document.getElementById('floaters');
+  for(let i=0;i<18;i++){
+    const el = document.createElement('div');
+    el.className='floater';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left = Math.random()*100+'vw';
+    el.style.animationDuration = (6+Math.random()*8)+'s';
+    el.style.animationDelay = (Math.random()*8)+'s';
+    el.style.fontSize = (1.2+Math.random()*2)+'rem';
+    floaters.appendChild(el);
+  }
+
+  // Quiz questions
+  const quiz = [
+    {
+      emoji: '🍕',
+      q: 'Si on était sur un date, tu préfères quoi ?',
+      opts: [
+        { t: '🍕 Pizza cosy à la maison', r: 'Oooh romantic ! 🥰' },
+        { t: '🍣 Restaurant sushi fancy', r: 'Classe ! J\'adore ça 😍' },
+        { t: '🍦 Glaces et balade en ville', r: 'Trop mignon !! 🌙' },
+        { t: '🎢 Parc d\'attractions chaos', r: 'Aaah une aventurière ! 🎢' },
+      ]
+    },
+    {
+      emoji: '🎬',
+      q: 'Film à regarder ensemble ?',
+      opts: [
+        { t: '😂 Comédie pour rire ensemble', r: 'Parfait pour briser la glace ! 😂' },
+        { t: '💀 Horreur pour se serrer l\'un contre l\'autre 👀', r: '...Très stratégique 😏' },
+        { t: '🥺 Film triste pour pleurer', r: 'Bon... j\'ai des mouchoirs 🤧' },
+        { t: '🦸 Super-héros action', r: 'Let\'s gooo ! 🦸‍♀️' },
+      ]
+    },
+    {
+      emoji: '🕐',
+      q: 'Tu es plutôt quelle heure ?',
+      opts: [
+        { t: '🌅 Matin : café et bonne humeur', r: 'Une lève-tôt... respect 😴' },
+        { t: '☀️ Midi : plein d\'énergie', r: 'Optimal ! 💪' },
+        { t: '🌆 Soir : quand la magie commence', r: 'Parfait pour un date 🌙✨' },
+        { t: '🦇 Nuit : mode vampire', r: 'Intrigant... très intrigant 🧛' },
+      ]
+    },
+    {
+      emoji: '😂',
+      q: 'Ton humour c\'est plutôt ?',
+      opts: [
+        { t: '🥁 Blagues nulles mais drôles', r: 'ON VA TROP BIEN S\'ENTENDRE 😭' },
+        { t: '😏 Humour noir mystérieux', r: 'Ooh... dangereux 😈' },
+        { t: '🎭 Mimiques et imitations', r: 'Montre-moi ça !! 🤣' },
+        { t: '🤓 Jeux de mots intellectuels', r: 'Très impressionnant 👏' },
+      ]
+    }
+  ];
+
+  let currentQ = 0;
+  let score = 0;
+
+  function goTo(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-'+screen).classList.add('active');
+    if(screen === 1) showQuestion();
+    if(screen === 2) positionNoBtn();
+  }
+
+  let pasEncoreClicks = 0;
+  function pasencore() {
+    pasEncoreClicks++;
+    const btn = document.getElementById('btn-pas-encore');
+    const r = document.getElementById('react-0');
+    const msgs = [
+      'Allez, aie confiance ! 🙏',
+      'Tu peux pas attraper ce bouton 😏',
+      'Trop lente ! 😂',
+      'SÉRIEUSEMENT ?! 😭',
+      'Le bouton refuse de coopérer 🏃',
+      'Il est plus rapide que toi 👀',
+      'Abandonne... ou clique OUI 😈',
+    ];
+    r.textContent = msgs[Math.min(pasEncoreClicks - 1, msgs.length - 1)];
+    if (pasEncoreClicks === 1) {
+      btn.style.position = 'fixed';
+      btn.style.zIndex = '9999';
+    }
+    const margin = 20;
+    const maxX = window.innerWidth - btn.offsetWidth - margin;
+    const maxY = window.innerHeight - btn.offsetHeight - margin;
+    btn.style.left = (margin + Math.random() * maxX) + 'px';
+    btn.style.top = (margin + Math.random() * maxY) + 'px';
+    btn.style.right = 'auto';
+    btn.style.bottom = 'auto';
+    btn.style.transform = 'rotate(' + ((Math.random()-0.5)*30) + 'deg) scale(' + (0.85 + Math.random()*0.3) + ')';
+    if (pasEncoreClicks >= 6) {
+      btn.textContent = '...ok 😤';
+      btn.style.opacity = '0.4';
+    }
+  }
+
+  function showQuestion() {
+    const q = quiz[currentQ];
+    document.getElementById('q-emoji').textContent = q.emoji;
+    document.getElementById('q-text').textContent = q.q;
+    document.getElementById('react-quiz').textContent = '';
+    const pct = (currentQ/quiz.length)*100;
+    document.getElementById('progress').style.width = pct+'%';
+    const opts = document.getElementById('q-options');
+    opts.innerHTML = '';
+    q.opts.forEach((o,i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = o.t;
+      btn.onclick = () => answerQ(i, o.r);
+      opts.appendChild(btn);
+    });
+  }
+
+  function answerQ(idx, reaction) {
+    score++;
+    document.getElementById('react-quiz').textContent = reaction;
+    document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents='none');
+    setTimeout(() => {
+      currentQ++;
+      if(currentQ < quiz.length) showQuestion();
+      else { goTo(2); }
+    }, 1400);
+  }
+
+  // No button runs away
+  let noClicks = 0;
+  function positionNoBtn() {
+    const btn = document.getElementById('btn-no-runaway');
+    btn.style.position = 'fixed';
+    btn.style.top = '80px';
+    btn.style.right = '30px';
+  }
+
+  function runAway() {
+    noClicks++;
+    const btn = document.getElementById('btn-no-runaway');
+    const msgs = ['...Vraiment ? 😢','Tu rigoles là...','NON non non 🙅','Reconsidère !!! 😭','Pitié 🥺'];
+    document.getElementById('react-final').textContent = msgs[Math.min(noClicks-1, msgs.length-1)];
+    const maxX = window.innerWidth - 140;
+    const maxY = window.innerHeight - 60;
+    btn.style.left = Math.random()*maxX+'px';
+    btn.style.top = Math.random()*maxY+'px';
+    btn.style.right = 'auto';
+    if(noClicks >= 5) {
+      btn.textContent = '...ok peut-être 😒';
+      btn.style.opacity = '0.3';
+    }
+  }
+
+  function sayYes() {
+    goTo(3);
+    celebrate();
+  }
+
+  function celebrate() {
+    // Heart rain
+    for(let i=0;i<40;i++){
+      setTimeout(()=>{
+        const h = document.createElement('div');
+        h.className='heart';
+        h.textContent = ['💖','💗','💕','💞','❤️','🌹'][Math.floor(Math.random()*6)];
+        h.style.left = Math.random()*100+'vw';
+        h.style.animationDuration = (2+Math.random()*3)+'s';
+        h.style.fontSize = (1+Math.random()*2)+'rem';
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(), 5000);
+      }, i*80);
+    }
+  }
+</script>
+</body>
+</html>
